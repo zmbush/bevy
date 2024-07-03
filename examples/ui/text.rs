@@ -1,3 +1,5 @@
+#![recursion_limit = "512"]
+
 //! This example illustrates how to create UI text and update it in a system.
 //!
 //! It displays the current FPS in the top left corner, as well as text that changes color
@@ -13,7 +15,10 @@ fn main() {
     App::new()
         .add_plugins((DefaultPlugins, FrameTimeDiagnosticsPlugin))
         .add_systems(Startup, setup)
-        .add_systems(Update, (text_update_system, text_color_system))
+        .add_systems(
+            Update,
+            (text_update_system, text_color_system, text_wave_system),
+        )
         .run();
 }
 
@@ -24,6 +29,9 @@ struct FpsText;
 // A unit struct to help identify the color-changing Text component
 #[derive(Component)]
 struct ColorText;
+
+#[derive(Component)]
+struct WavyText;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // UI camera
@@ -84,6 +92,28 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         FpsText,
     ));
 
+    commands.spawn((
+        TextBundle {
+            text: Text::from_sections((0..100).map(|i| TextSection {
+                value: (i % 10).to_string(),
+                style: TextStyle {
+                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+                    font_size: 10.0,
+                    color: GOLD.into(),
+                },
+                offset: Vec2::new(0., i as f32),
+            })),
+            style: Style {
+                position_type: PositionType::Absolute,
+                bottom: Val::Px(60.0),
+                left: Val::Px(15.0),
+                ..default()
+            },
+            ..default()
+        },
+        WavyText,
+    ));
+
     #[cfg(feature = "default_font")]
     commands.spawn(
         // Here we are able to call the `From` method instead of creating a new `TextSection`.
@@ -139,6 +169,16 @@ fn text_update_system(
                 // Update the value of the second section
                 text.sections[1].value = format!("{value:.2}");
             }
+        }
+    }
+}
+
+fn text_wave_system(time: Res<Time>, mut query: Query<&mut Text, With<WavyText>>) {
+    for mut text in &mut query {
+        for (i, section) in text.sections.iter_mut().enumerate() {
+            let seconds = (time.elapsed_seconds() + (i as f32 / 10.0)) % 2.0;
+            let seconds = f32::sin(seconds * std::f32::consts::PI);
+            section.offset = Vec2::new(0.0, seconds * 40.0);
         }
     }
 }
