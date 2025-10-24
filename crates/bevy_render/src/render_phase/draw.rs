@@ -324,8 +324,9 @@ impl AddRenderCommand for SubApp {
             .unwrap_or_else(|| {
                 panic!(
                     "DrawFunctions<{}> must be added to the world as a resource \
-                     before adding render commands to it",
+                     before adding render commands to it ({})",
                     std::any::type_name::<P>(),
+                    std::any::type_name::<C>()
                 );
             });
         draw_functions.write().add_with::<C, _>(draw_function);

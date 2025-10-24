@@ -277,21 +277,17 @@ pub(crate) fn changed_windows(
             }
         }
 
-        if window.cursor.icon != cache.window.cursor.icon {
-            winit_window.set_cursor(converters::convert_cursor_icon(window.cursor.icon));
+        if window.cursor_options.grab_mode != cache.window.cursor_options.grab_mode {
+            crate::winit_windows::attempt_grab(winit_window, window.cursor_options.grab_mode);
         }
 
-        if window.cursor.grab_mode != cache.window.cursor.grab_mode {
-            crate::winit_windows::attempt_grab(winit_window, window.cursor.grab_mode);
+        if window.cursor_options.visible != cache.window.cursor_options.visible {
+            winit_window.set_cursor_visible(window.cursor_options.visible);
         }
 
-        if window.cursor.visible != cache.window.cursor.visible {
-            winit_window.set_cursor_visible(window.cursor.visible);
-        }
-
-        if window.cursor.hit_test != cache.window.cursor.hit_test {
-            if let Err(err) = winit_window.set_cursor_hittest(window.cursor.hit_test) {
-                window.cursor.hit_test = cache.window.cursor.hit_test;
+        if window.cursor_options.hit_test != cache.window.cursor_options.hit_test {
+            if let Err(err) = winit_window.set_cursor_hittest(window.cursor_options.hit_test) {
+                window.cursor_options.hit_test = cache.window.cursor_options.hit_test;
                 warn!(
                     "Could not set cursor hit test for window {:?}: {:?}",
                     window.title, err

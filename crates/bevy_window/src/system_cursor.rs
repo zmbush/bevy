@@ -89,7 +89,7 @@ use bevy_reflect::{ReflectDeserialize, ReflectSerialize};
     reflect(Serialize, Deserialize)
 )]
 #[reflect(Debug, PartialEq, Default)]
-pub enum CursorIcon {
+pub enum SystemCursorIcon {
     /// The platform-dependent default cursor. Often rendered as arrow.
     #[default]
     Default,
@@ -107,8 +107,8 @@ pub enum CursorIcon {
     Pointer,
 
     /// A progress indicator. The program is performing some processing, but is
-    /// different from [`CursorIcon::Wait`] in that the user may still interact
-    /// with the program.
+    /// different from [`SystemCursorIcon::Wait`] in that the user may still
+    /// interact with the program.
     Progress,
 
     /// Indicates that the program is busy and the user should wait. Often
